@@ -1,22 +1,31 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Test.Service;
 
 namespace Test.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class PalindromController : ControllerBase
     {
-        [HttpPost]
-        public bool GetString(string Input)
+        private readonly IPalindrom service;
+        public PalindromController(IPalindrom _service) 
         {
-            Input = Input.Replace(" ", "").ToLower();
+            service = _service;
+        }
 
-            for (int i = 0; i < Input.Length / 2; i++)
-                if (Input[i] != Input[Input.Length - i - 1])
-                    return false;
-
-            return true;
+        [HttpPost]
+        [Route("api/Polindrom")]
+        public IActionResult GetString([FromBody]string Input)
+        {
+            try
+            {
+               return Ok(new { GetString = service.ChekPolindrom(Input) });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -1,31 +1,31 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Test.Service;
 
 namespace Test.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class SortController : ControllerBase
     {
-        [HttpPost]
-        public int[] SortingArray(int[] arr)
+        private readonly ISortArray<int> service;
+        public SortController(ISortArray<int> _service)
         {
-            return BubbleSort(arr);
+            this.service = _service;
         }
 
-        private int[] BubbleSort(int[] arr)
+        [HttpPost]
+        [Route("api/sort-array")]
+        public IActionResult SortingArray([FromBody]int[] arr)
         {
-            int n = arr.Length;
-            for (int i = 0; i < n - 1; i++)
-                for (int j = 0; j < n - i - 1; j++)
-                    if (arr[j] > arr[j + 1])
-                    {
-                        int temp = arr[j];
-                        arr[j] = arr[j + 1];
-                        arr[j + 1] = temp;
-                    }
-
-            return arr;
+            try
+            {
+                return Ok(new { SortedArray = service.ArraySorter(arr) });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

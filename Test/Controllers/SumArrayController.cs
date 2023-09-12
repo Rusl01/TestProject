@@ -1,30 +1,31 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Test.Service;
 
 namespace Test.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class SumArrayController : ControllerBase
     {
-        [HttpPost]
-        public int GetArray(int[] array)
+        private readonly ISumArray service;
+
+        public SumArrayController(ISumArray service)
         {
-            int sum = 0;
-            int count = 0;
+            this.service = service;
+        }
 
-            for (int i = 1; i < array.Length; i += 1)
-                if (array[i] % 2 != 0)
-                {
-                    count++;
-                    if (count == 2)
-                    {
-                        sum += array[i];
-                        count = 0;
-                    }
-                }
-
-            return sum;
+        [Route("api/sum-array")]
+        [HttpPost]
+        public IActionResult GetArray([FromBody]int[] array)
+        {
+            try
+            {
+                return Ok( new { SumArray = service.GetSumArray(array) });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
